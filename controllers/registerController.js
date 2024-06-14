@@ -14,9 +14,9 @@ handleNewUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await User.create({
-          "username": username,
-          "password": hashedPassword,
-        });  
+            "username": username,
+            "password": hashedPassword,
+        });
 
         console.log(result)
 
@@ -27,12 +27,33 @@ handleNewUser = async (req, res) => {
             "message": error.message
         })
     }
-
-    const getAllUsers = async (req, res) => {
-        const users = await User.find();
-        res.status(200).json(users)
-    }
 }
 
+    const getAllUsers = async (req, res) => {    
+        const users = await User.find();
+        console.log(users)
+        res.status(200).json({ users })
+    }
 
-module.exports = {handleNewUser, getAllUsers}
+    const updateUser = async (req, res) => {
+        const userId = req.params.id
+        const verifyId = await User.findById({ _id: userId })
+        if (!verifyId) res.status(404).json(`No user with id: ${userId} exists`)
+        
+        const payload = req.body
+        const updateUser = await User.findByIdAndUpdate( userId, payload, {new: true})
+        res.status(200).json({ updateUser });
+}
+    
+    const deleteUser = async (req, res) => {
+        const userId = req.params.id
+        const verifyId = await User.findById({ _id: userId });
+        if (!verifyId) res.status(404).json(`No user with id: ${verifyId} exists`);
+        await User.findByIdAndDelete(userId)
+
+        res.status(200).json({message: `user ${userId} records has been deleted`})
+
+    }
+
+
+module.exports = { handleNewUser, getAllUsers, updateUser, deleteUser };
