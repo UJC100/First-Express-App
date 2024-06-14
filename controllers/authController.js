@@ -4,12 +4,11 @@ const jwt = require("jsonwebtoken")
 
 const loginAuth = async (req, res) => {
     const reqBody = req.body
-    console.log(reqBody)
+    // console.log(reqBody)
     if (!reqBody) return res.status(400).json(`Please fill out the inputs above`);
 
-    const verifyUserArr = await User.find({ username: reqBody.username });
-    const verifyUser = verifyUserArr[0]
-    console.log(verifyUser)
+    const verifyUser = await User.findOne({ username: reqBody.username });
+    // console.log(verifyUser)
     if (!verifyUser) return res.status(401).json(`Incorrect credentials`);
 
     const verifypwd = await bcrypt.compare(reqBody.password, verifyUser.password);
@@ -35,4 +34,21 @@ const loginAuth = async (req, res) => {
     res.json({ accessToken })     
 }
 
-module.exports = {loginAuth}
+const logout = async (req, res) => {
+    const cookies = req.cookies
+    if (!cookies?.jwt) return res.sendStatus(403)
+    const refreshToken = cookies.jwt
+
+    const user = await User.findOne({ refreshToken })
+    if (!user) return res.sendStatus(401)
+    
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "none"
+    }).json(`Logout success`);
+
+    user.refreshToken = ''
+    user.save()
+}
+
+module.exports = {loginAuth, logout}

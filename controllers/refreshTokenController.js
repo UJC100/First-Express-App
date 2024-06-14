@@ -4,10 +4,11 @@ const jwt = require("jsonwebtoken")
 
 const handleTokenRefresh = async (req, res) => {
     const cookies = req.cookies
+    // console.log(cookies)
     if (!cookies?.jwt) return res.sendStatus(401)
     const refreshToken = cookies.jwt
     
-    const verifyRefresh = await User.find({ refreshToken });
+    const verifyRefresh = await User.findOne({ refreshToken });
     if (!verifyRefresh) return res.sendStatus(403)
     
     jwt.verify(
@@ -28,6 +29,8 @@ const handleTokenRefresh = async (req, res) => {
                 res.status(200).json({ accessToken });
         }
     );
+
+    
     
 }
 
