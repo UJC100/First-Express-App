@@ -7,6 +7,9 @@ const mongoose = require('mongoose')
 const corsOptions = require("./config/corsOptions")
 const connectDB = require("./config/dbConn")
 const userRoutes = require("./routes/userRoutes")
+const authRoutes = require("./routes/AuthRoutes")
+const refreshTokenRoute = require("./routes/refreshTokenRoute");
+
 const PORT = process.env.PORT || 5000
 
 
@@ -23,9 +26,8 @@ app.use(express.json())
 
 
 app.use('/api/users', userRoutes)
-app.use('/api/users', (req, res) => {
-    res.send('')
-})
+app.use("/api/users", authRoutes);
+app.use("api/users", refreshTokenRoute);
 
 mongoose.connection.once('open', () => {
     console.log('connected to mongoDB')
